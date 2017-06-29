@@ -2565,14 +2565,33 @@ class Compiler implements InjectionAwareInterface
 				}
 			} else {
 
-				/**
-				 * Stat is off but the compiled file doesn't exist
-				 */
-				if !file_exists(realCompiledPath) {
-				    /**
-                     * The file doesn't exist so we compile the php version for the first time
-                     */
-				    let compilation = this->compileFile(templatePath, realCompiledPath, extendsMode);
+                /**
+                 * Stat is off but the compiled file doesn't exist
+                 */
+                if !file_exists(realCompiledPath) {
+                    if extendsMode === true {
+                        /**
+                         * In extends mode we read the file that must contains a serialized array of blocks
+                         */
+                        let blocksCode = file_get_contents(realCompiledPath);
+                        if blocksCode === false {
+                            throw new Exception("Extends compilation file " . realCompiledPath . " could not be opened");
+                        }
+
+                        /**
+                         * Unserialize the array blocks code
+                         */
+                        if blocksCode {
+                            let compilation = unserialize(blocksCode);
+                        } else {
+                            let compilation = [];
+                        }
+                    } else {
+                        /**
+                         * The file doesn't exist so we compile the php version for the first time
+                         */
+                        let compilation = this->compileFile(templatePath, realCompiledPath, extendsMode);
+                    }
 				}
 
 			}
